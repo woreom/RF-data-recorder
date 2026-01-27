@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Survey Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; }
+        .form-section { background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Site Survey Tool</h1>
+        
+        <!-- Preset Management -->
+        <div class="card mb-4">
+            <div class="card-header">Presets</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-auto">
+                        <select id="presetSelect" class="form-select">
+                            <option value="">Load a preset...</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-secondary" onclick="loadPreset()">Load</button>
+                    </div>
+                    <div class="col-auto">
+                        <input type="text" id="newPresetName" class="form-control" placeholder="New preset name">
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-primary" onclick="savePreset()">Save Current</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" action="/start_recording" id="recordingForm">
+            <div class="form-section">
+                <h3>Recording Parameters</h3>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="device" class="form-label">Device (Drone Model):</label>
+                        <input type="text" class="form-control" id="device" name="device" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="status" class="form-label">Status (e.g., hovering, flying):</label>
+                        <input type="text" class="form-control" id="status" name="status" required>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="env" class="form-label">Environment (e.g. cage, office):</label>
+                        <input type="text" class="form-control" id="env" name="env" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="sdr_gain" class="form-label">SDR Gain (dB):</label>
+                        <input type="number" class="form-control" id="sdr_gain" name="sdr_gain" required>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="splitter" class="form-label">Splitter Used (Y/N):</label>
+                        <select class="form-select" id="splitter" name="splitter">
+                            <option value="N">No (N)</option>
+                            <option value="Y">Yes (Y)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="duration_recording" class="form-label">Duration (seconds):</label>
+                        <input type="number" class="form-control" id="duration_recording" name="duration_recording" required>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="distance" class="form-label">Distance (m):</label>
+                        <input type="number" class="form-control" id="distance" name="distance" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="altitude" class="form-label">Altitude (m):</label>
+                        <input type="number" class="form-control" id="altitude" name="altitude" required>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="center_freq" class="form-label">Center Frequency (MHz):</label>
+                        <input type="number" step="0.01" class="form-control" id="center_freq" name="center_freq" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="bw" class="form-label">Bandwidth (MHz):</label>
+                        <input type="number" class="form-control" id="bw" name="bw" required>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="snr" class="form-label">Estimated SNR (dB):</label>
+                        <input type="number" class="form-control" id="snr" name="snr" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="sampling_rate" class="form-label">Sampling Rate (MHz):</label>
+                        <input type="number" class="form-control" id="sampling_rate" name="sampling_rate" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                 <h3>Output Settings</h3>
+                 <div class="mb-3">
+                    <label for="save_dir" class="form-label">Save Directory Name (relative to data/):</label>
+                    <input type="text" class="form-control" id="save_dir" name="save_dir" required>
+                 </div>
+                 <div class="mb-3">
+                    <label for="description" class="form-label">Detailed Description:</label>
+                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                 </div>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-lg">Start Recording</button>
+        </form>
+    </div>
+
+    <!-- Scripts for Preset Handling -->
+    <script>
+        async function loadPresetsList() {
+            const response = await fetch('/presets');
+            const presets = await response.json();
+            const select = document.getElementById('presetSelect');
+            select.innerHTML = '<option value="">Load a preset...</option>';
+            for (const name in presets) {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                select.appendChild(option);
+            }
+        }
+
+        async function loadPreset() {
+            const name = document.getElementById('presetSelect').value;
+            if (!name) return;
+            const response = await fetch('/presets/' + name);
+            const data = await response.json();
+            
+            for (const key in data) {
+                if (document.getElementById(key)) {
+                    document.getElementById(key).value = data[key];
+                }
+            }
+        }
+
+        async function savePreset() {
+            const name = document.getElementById('newPresetName').value;
+            if (!name) {
+                alert('Please enter a preset name');
+                return;
+            }
+            
+            const formData = new FormData(document.getElementById('recordingForm'));
+            const data = Object.fromEntries(formData.entries());
+            
+            await fetch('/presets', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name, data: data })
+            });
+            
+            alert('Preset saved!');
+            loadPresetsList();
+        }
+
+        loadPresetsList();
+    </script>
+</body>
+</html>

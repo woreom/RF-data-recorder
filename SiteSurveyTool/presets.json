@@ -1,0 +1,18 @@
+{
+    "Test": {
+        "device": "DJI_MINI",
+        "status": "hovering",
+        "env": "test",
+        "sdr_gain": "20",
+        "splitter": "N",
+        "duration_recording": "5",
+        "distance": "100",
+        "altitude": "50",
+        "center_freq": "2423",
+        "bw": "10",
+        "snr": "20",
+        "sampling_rate": "10",
+        "save_dir": "test/",
+        "description": "yolosdalkknsdkjabsdkjba"
+    }
+}

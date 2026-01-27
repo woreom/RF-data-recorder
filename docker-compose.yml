@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  site-survey:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: site-survey-tool
+    
+    # Privileged mode is often required for direct hardware access (USRP)
+    privileged: true
+    
+    # Use host networking for simplicity with SDR hardware and local access
+    network_mode: host
+    
+    volumes:
+      # Allow access to USB devices for the SDR
+      - /dev/bus/usb:/dev/bus/usb
+      
+      # Mount the project directory to allow live editing and data persistence
+      - .:/app
+      
+      # Map host data directory to the application data directory
+      - ./data:/app/SiteSurveyTool/data
+      
+    environment:
+      - FLASK_APP=web_interface.py
+      - FLASK_ENV=development
+      # Ensure python knows where modules are
+      - PYTHONPATH=/app/SiteSurveyTool
+
+    tty: true
+    stdin_open: true
+    restart: unless-stopped

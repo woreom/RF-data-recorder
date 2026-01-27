@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Survey
+Type=Application
+Comment=Start survey
+Keywords=survey
+Terminal=true
+Exec=/usr/bin/survey.sh
+Icon=htop
+
+
