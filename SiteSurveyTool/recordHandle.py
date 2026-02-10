@@ -29,9 +29,12 @@ def crop(path_of_file,correlation_length):
     return number_of_vectors, croped_data_file	
 
 def selectChannels2(center_freq, bw, sampling_rate):
-    bw_val = int(bw)
     center_freq_val = float(center_freq)
     sampling_rate_val = int(sampling_rate)
+    if bw != 'NA':
+        bw_val = int(bw)
+    else:
+        bw_val = 20
     scan_range = sampling_rate_val/2 + bw_val/2 - 0.1*bw_val
     if bw_val <= 20:
         channels = initiateVideoChannels(center_freq_val-scan_range, center_freq_val+scan_range, 2)
@@ -39,6 +42,8 @@ def selectChannels2(center_freq, bw, sampling_rate):
         channels = initiateVideoChannels(center_freq_val-scan_range, center_freq_val+scan_range, 1)
     elif bw_val > 20:
         channels = initiateVideoChannels(center_freq_val-scan_range, center_freq_val+scan_range, 4)
+    else:
+        channels = initiateVideoChannels(center_freq_val-scan_range, center_freq_val+scan_range, 2)
     print(channels)
     return channels
 
