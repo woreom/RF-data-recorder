@@ -26,7 +26,7 @@ class top_block(gr.top_block):
 		self.freq = freq = options.center_freq*1e6
 		print('-----set up freq:', freq)
 		
-		self.file_name = file_name = options.record_dir.strip() + options.device.strip() + '_' + str(options.drone_c_freq) + '_' + str(int(options.bw)) + '_' + str(options.center_freq) + '_' + options.altitude.strip() + '_' + options.distance.strip() + '_' + options.status.strip() + '_' + str(options.snr) + '.dat'
+		self.file_name = file_name = options.record_dir.strip() + options.device.strip() + '_' + str(options.drone_c_freq) + '_' + options.bw.strip() + '_' + str(options.center_freq) + '_' + options.altitude.strip() + '_' + options.distance.strip() + '_' + options.status.strip() + '_' + options.snr.strip() + '.dat'
 		
 		print('-----write to file:', file_name)
 		self.usrp_source = uhd.usrp_source(",".join(("", "")),uhd.stream_args(cpu_format="fc32",channels=range(1),),)
@@ -68,7 +68,7 @@ if __name__ == '__main__':
 	parser.add_option("-a", "--altitude", type="string", default=0, help="Setup altitude of the signal source [default=%default]")
 	parser.add_option("-c", "--center_freq", type="eng_float", default=2412, help="Set center freqency of scanning [default=%default]")
 	parser.add_option("-b", "--bw", type="string", default='20', help="Setup bandwidth [default=%default]")
-	parser.add_option("-r", "--snr", type="eng_float", default=15, help="Setup estimated SNR [default=%default]")
+	parser.add_option("-r", "--snr", type="string", default='NA', help="Setup estimated SNR [default=%default]")
 	parser.add_option("-s", "--sampling_rate", type="eng_float", default=20e6, help="Set sampling rate [default=%default]")
 	
 	(options, args) = parser.parse_args()
